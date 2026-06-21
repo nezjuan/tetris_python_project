@@ -53,7 +53,7 @@ class Tetris(AbstractGame, Loggable):
         self._soft_drop = False
 
         self._home_bg = self._load_background("bg_stars.png", (18, 18, 28))
-        self._game_bg = self._load_background("bg_melanch.jpg", (28, 22, 34), size=self._game_res)
+        self._game_bg = self._load_background("bg_melanch.jpeg", (28, 22, 34), size=self._game_res)
 
 
         self._main_font = pygame.font.Font('slkscre.ttf', 70)
