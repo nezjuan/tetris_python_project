@@ -1,4 +1,5 @@
 import pygame
+from copy import deepcopy
 #constant variables(line 3 to 6)
 W, H = 10, 20
 TILE = 45
@@ -22,7 +23,13 @@ figure_pos = [[(-1, 0), (-2, 0), (0, 0), (1, 0)],
 #this line takes the figures from the array figures we made
 figures = [[pygame.Rect(x + W // 2, y + 1, 1, 1)for x, y in fig_pos]for fig_pos in figure_pos]
 figure_rect = pygame.Rect(0, 0, TILE-2, TILE-2)
-figure = figures[0]
+figure = deepcopy(figures[0])
+
+#this function creates the bounds for the figures to stay in
+def check_borders():
+    if figure[i].x < 0 or figure[i].x > W - 1:
+        return False
+    return True
 
 #main loop
 while True:
@@ -39,8 +46,14 @@ while True:
                 dx=-1
             elif event.key==pygame.K_RIGHT:
                 dx=1
+    #moves the horizontal position
+    figure_old = deepcopy(figure)
     for i in range(4):
         figure[i].x += dx
+        if not check_borders():
+            figure = deepcopy(figure_old)
+            break
+
     #allows grid to be displayed
     [pygame.draw.rect(game_sc, (40,40,40), i_rect, 1) for i_rect in grid]
 
