@@ -1,5 +1,7 @@
 import pygame
 from copy import deepcopy
+from random import choice, randrange
+
 #constant variables(line 3 to 6)
 W, H = 10, 20
 TILE = 45
@@ -23,14 +25,17 @@ figure_pos = [[(-1, 0), (-2, 0), (0, 0), (1, 0)],
 #this line takes the figures from the array figures we made
 figures = [[pygame.Rect(x + W // 2, y + 1, 1, 1)for x, y in fig_pos]for fig_pos in figure_pos]
 figure_rect = pygame.Rect(0, 0, TILE-2, TILE-2)
+field = [[0 for i in range(W)] for j in range (H)]
 
 #this part allows the figures to be in free fall
 anim_count, anim_speed, anim_limit = 0,5,2000
-figure = deepcopy(figures[0])
+figure = deepcopy(choice(figures))
 
 #this function creates the bounds for the figures to stay in
 def check_borders():
     if figure[i].x < 0 or figure[i].x > W - 1:
+        return False
+    elif figure[i].y > H - 1 or field[figure[i].y][figure[i].x]:
         return False
     return True
 
@@ -67,7 +72,9 @@ while True:
         for i in range(4):
             figure[i].y += 1
             if not check_borders():
-                figure = deepcopy(figure_old)
+                for i in range(4):
+                    field[figure_old[i].y][figure_old[i].x] = pygame.Color('white')
+                figure = deepcopy(choice(figures))
                 anim_limit = 2000
                 break
 
@@ -79,6 +86,13 @@ while True:
         figure_rect.x = figure[i].x * TILE
         figure_rect.y = figure[i].y * TILE
         pygame.draw.rect(game_sc,pygame.Color('white'), figure_rect)
+    
+    #this part draws the field map
+    for y, raw in enumerate(field):
+        for x, col in enumerate(raw):
+            if col:
+                figure_rect.x, figure_rect.y = x * TILE, y * TILE
+                pygame.draw.rect(game_sc, col, figure_rect)
 
     pygame.display.flip()
     clock.tick()
