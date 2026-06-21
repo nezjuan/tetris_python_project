@@ -9,13 +9,21 @@ class UserInterfaceElement(ABC):
     def text(self):
         raise NotImplementedError
     
-    def draw(self, surface, pos):
-        rendered = self._font.render(self.text(), True, self._color)
+    def draw(self, surface, pos, min_x=0):
         surf_w, surf_h = surface.get_size()
-        text_w, text_h = rendered.get_size()
-        x = min(pos[0], surf_w - text_w - 10)
-        y = min(pos[1], surf_h - text_h - 10)
-        surface.blit(rendered, (max(x, 0), max(y, 0)))
+        text = self.text()
+        char_surfaces = [self._font.render(ch, True, self._color) for ch in text]
+
+        text_w = sum(s.get_width() for s in char_surfaces)
+        text_h = max((s.get_height() for s in char_surfaces), default=0)
+
+        x = max(min(pos[0], surf_w - text_w - 10), min_x)
+        y = max(min(pos[1], surf_h - text_h - 10), 0)
+
+        cursor_x = x
+        for s in char_surfaces:
+            surface.blit(s, (cursor_x, y))
+            cursor_x += s.get_width()
 
 class StaticLabel(UserInterfaceElement):
     def __init__(self,font, color, value):

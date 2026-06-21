@@ -1,7 +1,15 @@
 import os
 import sys
+from random import randrange
 from abc import ABC, abstractmethod
- 
+
+import ctypes
+try:
+    ctypes.windll.user32.SetProcessDPIAware()
+except AttributeError:
+    pass  
+
+import pygame
 import pygame
  
 from field_file import Field
@@ -56,12 +64,12 @@ class Tetris(AbstractGame, Loggable):
         self._game_bg = self._load_background("bg_melanch.jpeg", (28, 22, 34), size=self._game_res)
 
 
-        self._main_font = pygame.font.Font('slkscre.ttf', 70)
-        self._font = pygame.font.Font('slkscre.ttf', 45)
+        self._main_font = pygame.font.SysFont(None, 70)
+        self._font = pygame.font.SysFont(None, 45)
 
-        self._labels = [(StaticLabel(self._main_font, (255, 140, 0), "TETRIS"), (470, 10)),
-            (ScoreLabel(self._font, (60, 200, 80), self._score), (480, 840)),
-            (RecordLabel(self._font, (212, 175, 55), self._record.get), (480, 710)),]
+        self._labels = [(StaticLabel(self._main_font, (255, 140, 0), "T E T R I S"), (470, 10)),
+            (ScoreLabel(self._font, (60, 200, 80), self._score), (600, 840)),
+            (RecordLabel(self._font, (212, 175, 55), self._record.get), (600, 710)),]
 
         self.log("initialised")
 
@@ -91,6 +99,11 @@ class Tetris(AbstractGame, Loggable):
         self._figure, self._next_figure = (self._next_figure,
             random_figure(self.TILE, spawn=self._spawn))
         self._anim_limit = 500
+
+    def _fill_board(self):
+        for y in range(self._field.height):
+            for x in range(self._field.width):
+                self._field.set_cell(x, y, (randrange(30, 256), randrange(30, 256), randrange(30, 256)))
 
     def update(self):
         if self._dx:
@@ -127,11 +140,19 @@ class Tetris(AbstractGame, Loggable):
         if self._field.top_row_occupied():
             new_record = self._record.update(self._score.score)
             self.log(f"game over, record={new_record}")
+            for y in range(self._field.height):
+                for x in range(self._field.width):
+                    self._field.set_cell(x, y, (randrange(30, 256),randrange(30, 256),randrange(30, 256)))
+            self.render()
+            pygame.time.delay(1000)
             self._new_round()
 
     def render(self):
         self._screen.blit(self._home_bg, (0, 0))
         self._game_surface.blit(self._game_bg, (0, 0))
+        sidebar_left = 20 + self.WIDTH * self.TILE + 10
+        for label, pos in self._labels:
+            label.draw(self._screen, pos, min_x=sidebar_left)
 
         for x in range(self.WIDTH):
             for y in range(self.HEIGHT):
