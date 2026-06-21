@@ -39,6 +39,11 @@ figure = deepcopy(choice(figures))
 home_background = pygame.image.load('bg_sakura.jpeg').convert()
 game_background = pygame.image.load('bg_tokyo.jpeg').convert()
 
+#this part creates the title page and text fonts for the game
+main_font = pygame.font.Font('slkscre.ttf',65)
+font = pygame.font.Font('slkscre.ttf',45)
+title_tetris=main_font.render('TETRIS', True, pygame.Color('darkorange'))
+
 #this parts puts color on the blocks
 get_color = lambda: (randrange(30,256), randrange(30,256), randrange(30,256))
 color = get_color()
@@ -134,6 +139,9 @@ while True:
             if col:
                 figure_rect.x, figure_rect.y = x * TILE, y * TILE
                 pygame.draw.rect(game_sc, col, figure_rect)
+
+    #this part draws the title
+    screen.blit(title_tetris, (475, 10))
 
     pygame.display.flip()
     clock.tick()
