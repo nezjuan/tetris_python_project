@@ -35,8 +35,13 @@ field = [[0 for i in range(W)] for j in range (H)]
 anim_count, anim_speed, anim_limit = 0,5,2000
 figure = deepcopy(choice(figures))
 
+#this parts allows to load the image in the game
 home_background = pygame.image.load('bg_sakura.jpeg').convert()
 game_background = pygame.image.load('bg_tokyo.jpeg').convert()
+
+#this parts puts color on the blocks
+get_color = lambda: (randrange(30,256), randrange(30,256), randrange(30,256))
+color = get_color()
 
 #this function creates the bounds for the figures to stay in
 def check_borders():
@@ -84,7 +89,8 @@ while True:
             figure[i].y += 1
             if not check_borders():
                 for i in range(4):
-                    field[figure_old[i].y][figure_old[i].x] = pygame.Color('white')
+                    field[figure_old[i].y][figure_old[i].x] = color
+                color = get_color()  
                 figure = deepcopy(choice(figures))
                 anim_limit = 2000
                 break
@@ -120,7 +126,7 @@ while True:
     for i in range(4):
         figure_rect.x = figure[i].x * TILE
         figure_rect.y = figure[i].y * TILE
-        pygame.draw.rect(game_sc,pygame.Color('white'), figure_rect)
+        pygame.draw.rect(game_sc, color , figure_rect)
     
     #this part draws the field map
     for y, raw in enumerate(field):
