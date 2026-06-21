@@ -82,8 +82,7 @@ class Tetris(AbstractGame, Loggable):
     def _spawn_next_figure(self):
         self._figure, self._next_figure = (
             self._next_figure,
-            random_figure(self.TILE, spawn=self._spawn),
-        )
+            random_figure(self.TILE, spawn=self._spawn))
         self._anim_limit = 2000
 
     def update(self):
@@ -164,6 +163,6 @@ class Tetris(AbstractGame, Loggable):
                 elif event.key == pygame.K_RIGHT:
                     self._dx = 1
                 elif event.key == pygame.K_DOWN:
-                    self._anim_limit = 100
+                    self._anim_limit = 200
                 elif event.key == pygame.K_UP:
                     self._do_rotate = True

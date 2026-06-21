@@ -40,4 +40,4 @@ class Field:
         self._grid = self._empty_grid()
 
     def __iter__(self):
-        return iter(self.grid)
+        return iter(self._grid)

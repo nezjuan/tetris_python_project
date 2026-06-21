@@ -34,7 +34,7 @@ class Record:
                 content = record_file.readline().strip()
                 return int(content) if content else 0
         except FileNotFoundError:
-            with open(self.path, 'w') as record_file:
+            with open(self._path, 'w') as record_file:
                 record_file.write('0')
             return 0
         

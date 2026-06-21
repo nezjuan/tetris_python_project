@@ -22,7 +22,7 @@ class Block:
     def y(self):
         return self._y
     
-    @y.settter
+    @y.setter
     def y(self, value):
         self._y = value
 
@@ -32,7 +32,7 @@ class Block:
 class Figure(Drawable, Movable, Rotatable, Collidable):
     SHAPE = []
 
-    def __init__(self, tile_size, spawn-(0,0), color= None):
+    def __init__(self, tile_size, spawn=(0,0), color= None):
         if not self.SHAPE:
             raise NotImplementedError(f"{self.__class__.__name__}must define a non-empty SHAPE")
         self._tile = tile_size
