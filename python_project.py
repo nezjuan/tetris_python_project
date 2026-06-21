@@ -42,7 +42,7 @@ def check_borders():
 #main loop
 while True:
     #dx allows the figures to be moved by its horizontal position
-    dx = 0
+    dx, rotate = 0, False
     game_sc.fill(pygame.Color('black'))
 
     for event in pygame.event.get():
@@ -57,6 +57,8 @@ while True:
             #this part allows acceleration of the blocks
             elif event.key==pygame.K_DOWN:
                 anim_limit = 100
+            elif event.key==pygame.K_UP:
+                rotate = True
     #moves the horizontal position
     figure_old = deepcopy(figure)
     for i in range(4):
@@ -76,6 +78,19 @@ while True:
                     field[figure_old[i].y][figure_old[i].x] = pygame.Color('white')
                 figure = deepcopy(choice(figures))
                 anim_limit = 2000
+                break
+
+    #rotating function
+    center= figure[0]
+    figure_old = deepcopy(figure)
+    if rotate:
+        for i in range(4):
+            x = figure[i].y - center.y
+            y = figure[i].x - center.x
+            figure[i].x = center.x - x
+            figure[i].y = center.y + y
+            if not check_borders():
+                figure = deepcopy(figure_old)
                 break
 
     #allows grid to be displayed
