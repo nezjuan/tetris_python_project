@@ -3,13 +3,6 @@ import sys
 from random import randrange
 from abc import ABC, abstractmethod
 
-import ctypes
-try:
-    ctypes.windll.user32.SetProcessDPIAware()
-except AttributeError:
-    pass  
-
-import pygame
 import pygame
  
 from field_file import Field
