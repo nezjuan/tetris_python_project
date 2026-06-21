@@ -23,6 +23,9 @@ figure_pos = [[(-1, 0), (-2, 0), (0, 0), (1, 0)],
 #this line takes the figures from the array figures we made
 figures = [[pygame.Rect(x + W // 2, y + 1, 1, 1)for x, y in fig_pos]for fig_pos in figure_pos]
 figure_rect = pygame.Rect(0, 0, TILE-2, TILE-2)
+
+#this part allows the figures to be in free fall
+anim_count, anim_speed, anim_limit = 0,5,2000
 figure = deepcopy(figures[0])
 
 #this function creates the bounds for the figures to stay in
@@ -46,6 +49,9 @@ while True:
                 dx=-1
             elif event.key==pygame.K_RIGHT:
                 dx=1
+            #this part allows acceleration of the blocks
+            elif event.key==pygame.K_DOWN:
+                anim_limit = 100
     #moves the horizontal position
     figure_old = deepcopy(figure)
     for i in range(4):
@@ -53,6 +59,17 @@ while True:
         if not check_borders():
             figure = deepcopy(figure_old)
             break
+    #movement for the vertical position
+    anim_count += anim_speed
+    if anim_count > anim_limit:
+        anim_count = 0
+        figure_old = deepcopy(figure)
+        for i in range(4):
+            figure[i].y += 1
+            if not check_borders():
+                figure = deepcopy(figure_old)
+                anim_limit = 2000
+                break
 
     #allows grid to be displayed
     [pygame.draw.rect(game_sc, (40,40,40), i_rect, 1) for i_rect in grid]
