@@ -61,3 +61,27 @@ class Tetris(AbstractGame, Loggable):
 
         self.log("initialised")
 
+    def _load_background(self, filename, fallback_color, size=None):
+        path = os.path.join(os.path.dirname(__file__), "assets", filename)
+        size = size or self.WINDOW_SIZE
+        try:
+            image = pygame.image.load(path).convert()
+            return pygame.transform.smoothscale(image, size)
+        except (pygame.error, FileNotFoundError):
+            surf = pygame.Surface(size)
+            surf.fill(fallback_color)
+            return surf
+        
+    def _new_round(self):
+        self._field.reset()
+        self._score.reset()
+        self._anim_count = 0
+        self._anim_speed = 5
+        self._anim_limit = 2000
+
+    def _spawn_next_figure(self):
+        self._figure, self._next_figure = (
+            self._next_figure,
+            random_figure(self.TILE, spawn=self._spawn),
+        )
+        self._anim_limit = 2000
