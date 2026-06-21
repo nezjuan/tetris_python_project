@@ -35,8 +35,8 @@ field = [[0 for i in range(W)] for j in range (H)]
 anim_count, anim_speed, anim_limit = 0,5,2000
 
 #this parts allows to load the image in the game
-home_background = pygame.image.load('bg_sakura.jpeg').convert()
-game_background = pygame.image.load('bg_tokyo.jpeg').convert()
+home_background = pygame.image.load('bg_stars.png').convert()
+game_background = pygame.image.load('bg_melanch.jpeg').convert()
 
 #this part creates the title page and text fonts for the game
 main_font = pygame.font.Font('slkscre.ttf',65)
@@ -183,9 +183,9 @@ while True:
 
     #this part draws the title
     screen.blit(title_tetris, (475, 10))
-    screen.blit(title_score, (535,780))
+    screen.blit(title_score, (530,780))
     screen.blit(font.render(str(score),True, pygame.Color('white')), (550, 840))
-    screen.blit(title_record, (525,650))
+    screen.blit(title_record, (500,650))
     screen.blit(font.render(record, True, pygame.Color('gold')),(550, 710))
 
     #game over
