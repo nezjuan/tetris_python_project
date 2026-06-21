@@ -11,7 +11,11 @@ class UserInterfaceElement(ABC):
     
     def draw(self, surface, pos):
         rendered = self._font.render(self.text(), True, self._color)
-        surface.blit(rendered, pos)
+        surf_w, surf_h = surface.get_size()
+        text_w, text_h = rendered.get_size()
+        x = min(pos[0], surf_w - text_w - 10)
+        y = min(pos[1], surf_h - text_h - 10)
+        surface.blit(rendered, (max(x, 0), max(y, 0)))
 
 class StaticLabel(UserInterfaceElement):
     def __init__(self,font, color, value):

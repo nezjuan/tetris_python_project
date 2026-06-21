@@ -1,7 +1,9 @@
 import os
 import sys
-import pygame
 from abc import ABC, abstractmethod
+ 
+import pygame
+ 
 from field_file import Field
 from score_file import Score, Record
 from shapes_file import random_figure
@@ -21,7 +23,7 @@ class AbstractGame(ABC):
     def run(self):
         raise NotImplementedError
     
-class Tetris(AbstractGame, Loggable):
+class Tetris(AbstractGame, Loggable):   
     WIDTH, HEIGHT = 10, 20
     TILE = 45
     FPS = 60
@@ -43,47 +45,52 @@ class Tetris(AbstractGame, Loggable):
         self._figure = random_figure(self.TILE, spawn=self._spawn)
         self._next_figure = random_figure(self.TILE, spawn=self._spawn)
 
+        self._anim_count = 0
+        self._anim_speed = 5
+        self._anim_limit = 500
+        self._dx = 0
+        self._do_rotate = False
+        self._soft_drop = False
+
         self._home_bg = self._load_background("bg_stars.png", (18, 18, 28))
         self._game_bg = self._load_background("bg_melanch.jpg", (28, 22, 34), size=self._game_res)
 
-        self._anim_count = 0
-        self._anim_speed = 5
-        self._anim_limit = 2000
-        self._dx = 0
-        self._do_rotate = False
 
         self._main_font = pygame.font.Font('slkscre.ttf', 70)
         self._font = pygame.font.Font('slkscre.ttf', 45)
 
         self._labels = [(StaticLabel(self._main_font, (255, 140, 0), "TETRIS"), (470, 10)),
-            (ScoreLabel(self._font, (60, 200, 80), self._score), (550, 840)),
-            (RecordLabel(self._font, (212, 175, 55), self._record.get), (550, 710)),]
+            (ScoreLabel(self._font, (60, 200, 80), self._score), (480, 840)),
+            (RecordLabel(self._font, (212, 175, 55), self._record.get), (480, 710)),]
 
         self.log("initialised")
 
     def _load_background(self, filename, fallback_color, size=None):
-        path = os.path.join(os.path.dirname(__file__), "assets", filename)
+        base_dir = os.path.dirname(__file__)
+        candidates = [os.path.join(base_dir, filename),
+            os.path.join(base_dir, "assets", filename)]
         size = size or self.WINDOW_SIZE
-        try:
-            image = pygame.image.load(path).convert()
-            return pygame.transform.smoothscale(image, size)
-        except (pygame.error, FileNotFoundError):
-            surf = pygame.Surface(size)
-            surf.fill(fallback_color)
-            return surf
+        for path in candidates:
+            try:
+                image = pygame.image.load(path).convert()
+                return pygame.transform.smoothscale(image, size)
+            except (pygame.error, FileNotFoundError):
+                continue
+        surf = pygame.Surface(size)
+        surf.fill(fallback_color)
+        return surf
         
     def _new_round(self):
         self._field.reset()
         self._score.reset()
         self._anim_count = 0
         self._anim_speed = 5
-        self._anim_limit = 2000
+        self._anim_limit = 500
 
     def _spawn_next_figure(self):
-        self._figure, self._next_figure = (
-            self._next_figure,
+        self._figure, self._next_figure = (self._next_figure,
             random_figure(self.TILE, spawn=self._spawn))
-        self._anim_limit = 2000
+        self._anim_limit = 500
 
     def update(self):
         if self._dx:
@@ -100,7 +107,8 @@ class Tetris(AbstractGame, Loggable):
                 self._figure = previous
             self._do_rotate = False
 
-        self._anim_count += self._anim_speed
+        effective_speed = self._anim_speed * (20 if self._soft_drop else 1)
+        self._anim_count += effective_speed
         if self._anim_count > self._anim_limit:
             self._anim_count = 0
             previous = self._figure.clone()
@@ -113,7 +121,7 @@ class Tetris(AbstractGame, Loggable):
         cleared = self._field.clear_lines()
         if cleared:
             self._score.add_lines(cleared)
-            self._anim_speed += 3
+            self._anim_speed += 0.3
             self.log(f"cleared {cleared} line(s), score={self._score.score}")
 
         if self._field.top_row_occupied():
@@ -163,6 +171,9 @@ class Tetris(AbstractGame, Loggable):
                 elif event.key == pygame.K_RIGHT:
                     self._dx = 1
                 elif event.key == pygame.K_DOWN:
-                    self._anim_limit = 200
+                    self._soft_drop = True
                 elif event.key == pygame.K_UP:
                     self._do_rotate = True
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_DOWN:
+                    self._soft_drop = False
