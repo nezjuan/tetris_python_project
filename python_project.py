@@ -6,10 +6,12 @@ from random import choice, randrange
 W, H = 10, 20
 TILE = 45
 GAME_RES =  W*TILE, H*TILE
-FPS=60
+RES = 750, 940
+FPS = 60
 
 pygame.init()
-game_sc= pygame.display.set_mode(GAME_RES)
+screen=pygame.display.set_mode(RES)
+game_sc= pygame.Surface(GAME_RES)
 clock=pygame.time.Clock()
 
 #grid display
@@ -17,9 +19,11 @@ grid = [pygame.Rect(x*TILE, y*TILE, TILE, TILE) for x in range(W) for y in range
 
 #figure positions
 figure_pos = [[(-1, 0), (-2, 0), (0, 0), (1, 0)],
-    [(0, -1), (-1, -1), (-1, 0), (0, 1)],
+    [(0, -1), (-1, -1), (-1, 0), (0, 0)],
+    [(-1, 0), (-1, 0), (0, 0), (0, -1)],
     [(0, 0), (-1, 0), (0, 1), (-1, -1)],
-    [(0, 0), (0, 1), (0, 1), (1, -1)],
+    [(0, 0), (0, -1), (0, 1), (-1, -1)],
+    [(0, 0), (0, -1), (0, 1), (-1, -1)],
     [(0, 0), (0, -1), (0, 1), (-1, 0)]]
 
 #this line takes the figures from the array figures we made
@@ -30,6 +34,9 @@ field = [[0 for i in range(W)] for j in range (H)]
 #this part allows the figures to be in free fall
 anim_count, anim_speed, anim_limit = 0,5,2000
 figure = deepcopy(choice(figures))
+
+home_background = pygame.image.load('bg_sakura.jpeg').convert()
+game_background = pygame.image.load('bg_tokyo.jpeg').convert()
 
 #this function creates the bounds for the figures to stay in
 def check_borders():
@@ -43,7 +50,9 @@ def check_borders():
 while True:
     #dx allows the figures to be moved by its horizontal position
     dx, rotate = 0, False
-    game_sc.fill(pygame.Color('black'))
+    screen.blit(home_background,(0,0))
+    screen.blit(game_sc,(20,20))
+    game_sc.blit(game_background,(0,0))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
