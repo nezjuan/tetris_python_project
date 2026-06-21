@@ -26,11 +26,21 @@ figure = figures[0]
 
 #main loop
 while True:
+    #dx allows the figures to be moved by its horizontal position
+    dx = 0
     game_sc.fill(pygame.Color('black'))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit()
+        #controls the x direction
+        if event.type == pygame.KEYDOWN:
+            if event.key==pygame.K_LEFT:
+                dx=-1
+            elif event.key==pygame.K_RIGHT:
+                dx=1
+    for i in range(4):
+        figure[i].x += dx
     #allows grid to be displayed
     [pygame.draw.rect(game_sc, (40,40,40), i_rect, 1) for i_rect in grid]
 
