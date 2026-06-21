@@ -52,8 +52,8 @@ class Tetris(AbstractGame, Loggable):
         self._dx = 0
         self._do_rotate = False
 
-        self._main_font = pygame.font.SysFont(None, 70)
-        self._font = pygame.font.SysFont(None, 45)
+        self._main_font = pygame.font.Font('slkscre.ttf', 70)
+        self._font = pygame.font.Font('slkscre.ttf', 45)
 
         self._labels = [(StaticLabel(self._main_font, (255, 140, 0), "TETRIS"), (470, 10)),
             (ScoreLabel(self._font, (60, 200, 80), self._score), (550, 840)),
@@ -85,3 +85,85 @@ class Tetris(AbstractGame, Loggable):
             random_figure(self.TILE, spawn=self._spawn),
         )
         self._anim_limit = 2000
+
+    def update(self):
+        if self._dx:
+            previous = self._figure.clone()
+            self._figure.move(self._dx, 0)
+            if self._figure.collides(self._field):
+                self._figure = previous
+            self._dx = 0
+
+        if self._do_rotate:
+            previous = self._figure.clone()
+            self._figure.rotate()
+            if self._figure.collides(self._field):
+                self._figure = previous
+            self._do_rotate = False
+
+        self._anim_count += self._anim_speed
+        if self._anim_count > self._anim_limit:
+            self._anim_count = 0
+            previous = self._figure.clone()
+            self._figure.move(0, 1)
+            if self._figure.collides(self._field):
+                self._figure = previous
+                self._field.freeze(self._figure)
+                self._spawn_next_figure()
+
+        cleared = self._field.clear_lines()
+        if cleared:
+            self._score.add_lines(cleared)
+            self._anim_speed += 3
+            self.log(f"cleared {cleared} line(s), score={self._score.score}")
+
+        if self._field.top_row_occupied():
+            new_record = self._record.update(self._score.score)
+            self.log(f"game over, record={new_record}")
+            self._new_round()
+
+    def render(self):
+        self._screen.blit(self._home_bg, (0, 0))
+        self._game_surface.blit(self._game_bg, (0, 0))
+
+        for x in range(self.WIDTH):
+            for y in range(self.HEIGHT):
+                rect = pygame.Rect(x * self.TILE, y * self.TILE, self.TILE, self.TILE)
+                pygame.draw.rect(self._game_surface, (70, 70, 80), rect, 1)
+
+        for y, row in enumerate(self._field):
+            for x, color in enumerate(row):
+                if color:
+                    rect = pygame.Rect(x * self.TILE, y * self.TILE, self.TILE - 2, self.TILE - 2)
+                    pygame.draw.rect(self._game_surface, color, rect)
+
+        self._figure.draw(self._game_surface)
+        self._screen.blit(self._game_surface, (20, 20))
+        self._next_figure.draw(self._screen, offset=(380, 185))
+
+        for label, pos in self._labels:
+            label.draw(self._screen, pos)
+
+        pygame.display.flip()
+
+    def run(self):
+        while True:
+            self._handle_events()
+            self.update()
+            self.render()
+            self._clock.tick(self.FPS)
+
+    def _handle_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    self._dx = -1
+                elif event.key == pygame.K_RIGHT:
+                    self._dx = 1
+                elif event.key == pygame.K_DOWN:
+                    self._anim_limit = 100
+                elif event.key == pygame.K_UP:
+                    self._do_rotate = True
