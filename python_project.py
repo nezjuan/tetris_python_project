@@ -33,7 +33,6 @@ field = [[0 for i in range(W)] for j in range (H)]
 
 #this part allows the figures to be in free fall
 anim_count, anim_speed, anim_limit = 0,5,2000
-figure = deepcopy(choice(figures))
 
 #this parts allows to load the image in the game
 home_background = pygame.image.load('bg_sakura.jpeg').convert()
@@ -43,10 +42,19 @@ game_background = pygame.image.load('bg_tokyo.jpeg').convert()
 main_font = pygame.font.Font('slkscre.ttf',65)
 font = pygame.font.Font('slkscre.ttf',45)
 title_tetris=main_font.render('TETRIS', True, pygame.Color('darkorange'))
+title_score = font.render('score:', True, pygame.Color('green'))
 
 #this parts puts color on the blocks
 get_color = lambda: (randrange(30,256), randrange(30,256), randrange(30,256))
 color = get_color()
+
+#this allows you to get the next block you can use
+figure, next_figure = deepcopy(choice(figures)), deepcopy(choice(figures))
+color, next_color = get_color(), get_color()
+
+#this part allows you to track your score
+score, lines = 0, 0
+scores = {0:0, 1:100, 2:300, 3:700, 4:1500}
 
 #this function creates the bounds for the figures to stay in
 def check_borders():
@@ -63,7 +71,12 @@ while True:
     screen.blit(home_background,(0,0))
     screen.blit(game_sc,(20,20))
     game_sc.blit(game_background,(0,0))
+    
+    #delay for full lines
+    for i in range(lines):
+        pygame.time.wait(200)
 
+    #control
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit()
@@ -95,8 +108,8 @@ while True:
             if not check_borders():
                 for i in range(4):
                     field[figure_old[i].y][figure_old[i].x] = color
-                color = get_color()  
-                figure = deepcopy(choice(figures))
+                figure, color = next_figure, next_color
+                next_figure, next_color = deepcopy(choice(figures)), get_color()
                 anim_limit = 2000
                 break
 
@@ -114,7 +127,7 @@ while True:
                 break
     
     #check and clear filled lines
-    line = H - 1
+    line, lines = H - 1, 0
     for row in range(H -1, -1, -1):
         count = 0
         for i in range(W):
@@ -123,6 +136,12 @@ while True:
             field[line][i] = field[row][i]
         if count < W:
             line -= 1 
+        else:
+            anim_speed += 3 
+            lines += 1 
+        
+    #this part computes the scores
+    score += scores[lines]
 
     #allows grid to be displayed
     [pygame.draw.rect(game_sc, (40,40,40), i_rect, 1) for i_rect in grid]
@@ -140,8 +159,16 @@ while True:
                 figure_rect.x, figure_rect.y = x * TILE, y * TILE
                 pygame.draw.rect(game_sc, col, figure_rect)
 
+    #draws the next block
+    for i in range(4):
+        figure_rect.x = next_figure[i].x * TILE + 380
+        figure_rect.y = next_figure[i].y * TILE + 185
+        pygame.draw.rect(screen, next_color , figure_rect)
+
     #this part draws the title
     screen.blit(title_tetris, (475, 10))
+    screen.blit(title_score, (535,780))
+    screen.blit(font.render(str(score),True, pygame.Color('white')), (550, 840))
 
     pygame.display.flip()
     clock.tick()
