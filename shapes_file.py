@@ -88,3 +88,30 @@ class Figure(Drawable, Movable, Rotatable, Collidable):
 
     def __repr__(self):
         return f"{self.__class__.__name__}{self.blocks}"
+    
+class LineFigure(Figure):
+    SHAPE = [(-1, 0), (0, 0), (1, 0), (2, 0)]
+
+class BoxFigure(Figure):
+    SHAPE = [(0, 0), (1, 0), (0, -1), (1, -1)]
+    def rotate(self):
+        pass
+
+class TFigure(Figure):
+    SHAPE = [(-1, 0), (0, 0), (1, 0), (0, -1)]
+
+class SFigure(Figure):
+    SHAPE = [(0, 0), (-1, 0), (0, -1), (1, -1)]
+
+class ZFigure(Figure):
+    SHAPE = [(0, 0), (1, 0), (0, -1), (-1, -1)]
+
+class LFigure(Figure):
+    SHAPE = [(0, -1), (0, 0), (0, 1), (1, 1)]
+
+class JFigure(Figure):
+    SHAPE = [(0, -1), (0, 0), (0, 1), (-1, 1)]
+
+FIGURE_CLASSES = [LineFigure, BoxFigure, TFigure, SFigure, ZFigure, LFigure, JFigure]
+def random_figure(tile_size, spawn=(0,0)):
+    return choice(FIGURE_CLASSES)(tile_size, spawn=spawn)
