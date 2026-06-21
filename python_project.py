@@ -42,7 +42,9 @@ game_background = pygame.image.load('bg_tokyo.jpeg').convert()
 main_font = pygame.font.Font('slkscre.ttf',65)
 font = pygame.font.Font('slkscre.ttf',45)
 title_tetris=main_font.render('TETRIS', True, pygame.Color('darkorange'))
+
 title_score = font.render('score:', True, pygame.Color('green'))
+title_record = font.render('record:', True, pygame.Color('purple'))
 
 #this parts puts color on the blocks
 get_color = lambda: (randrange(30,256), randrange(30,256), randrange(30,256))
@@ -64,8 +66,22 @@ def check_borders():
         return False
     return True
 
+def get_record():
+    try:
+        with open('Records') as record_file:
+            return record_file.readline()
+    except FileNotFoundError:
+        with open('Records', 'w') as record_file:
+            record_file.write('0')
+
+def set_record(record, score):
+    rec = max(int(record),score)
+    with open('Records', 'w') as set_record_file:
+        set_record_file.write(str(rec))
+
 #main loop
 while True:
+    record = get_record()
     #dx allows the figures to be moved by its horizontal position
     dx, rotate = 0, False
     screen.blit(home_background,(0,0))
@@ -169,6 +185,21 @@ while True:
     screen.blit(title_tetris, (475, 10))
     screen.blit(title_score, (535,780))
     screen.blit(font.render(str(score),True, pygame.Color('white')), (550, 840))
+    screen.blit(title_record, (525,650))
+    screen.blit(font.render(record, True, pygame.Color('gold')),(550, 710))
+
+    #game over
+    for i in range(W):
+        if field[0][i]:
+            set_record(record,score)
+            field = [[0 for i in range(W)] for i in range(H)]
+            anim_count, anim_speed, anim_limit = 0, 5, 2000
+            score = 0
+            for i_rect in grid:
+                pygame.draw.rect(game_sc, get_color(), i_rect)
+                screen.blit(game_sc,(20,20))
+                pygame.display.flip()
+                clock.tick(200)
 
     pygame.display.flip()
     clock.tick()
